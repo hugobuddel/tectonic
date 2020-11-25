@@ -457,6 +457,11 @@ impl<'a> ExecutionState<'a> {
         rhandle.getc()
     }
 
+    fn input_getchb(&mut self, handle: *mut InputHandle) -> Result<u8> {
+        let rhandle: &mut InputHandle = unsafe { &mut *handle };
+        rhandle.getchb()
+    }
+
     fn input_ungetc(&mut self, handle: *mut InputHandle, byte: u8) -> Result<()> {
         let rhandle: &mut InputHandle = unsafe { &mut *handle };
         rhandle.ungetc(byte)
@@ -778,6 +783,23 @@ pub extern "C" fn input_getc(es: &mut ExecutionState, handle: *mut InputHandle) 
     // No need to complain. Fun match statement here.
 
     match es.input_getc(handle) {
+        Ok(b) => libc::c_int::from(b),
+        Err(Error(ErrorKind::Io(ref ioe), _)) if ioe.kind() == io::ErrorKind::UnexpectedEof => {
+            libc::EOF
+        }
+        Err(e) => {
+            tt_warning!(es.status, "getc failed"; e);
+            -1
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn input_getchb(es: &mut ExecutionState, handle: *mut InputHandle) -> libc::c_int {
+    // If we couldn't fill the whole (1-byte) buffer, that's boring old EOF.
+    // No need to complain. Fun match statement here.
+
+    match es.input_getchb(handle) {
         Ok(b) => libc::c_int::from(b),
         Err(Error(ErrorKind::Io(ref ioe), _)) if ioe.kind() == io::ErrorKind::UnexpectedEof => {
             libc::EOF

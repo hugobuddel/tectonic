@@ -206,6 +206,22 @@ impl InputHandle {
         Ok(byte[0])
     }
 
+    pub fn getchb(&mut self) -> Result<u8> {
+        if let Some(c) = self.ungetc_char {
+            self.ungetc_char = None;
+            return Ok(c);
+        }
+
+        let mut byte = [0u8; 1];
+
+        if self.read(&mut byte[..1])? == 0 {
+            // EOF
+            return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "EOF in getc").into());
+        }
+
+        Ok(byte[0])
+    }
+
     /// Here's the `ungetc()` emulation.
     pub fn ungetc(&mut self, byte: u8) -> Result<()> {
         if self.ungetc_char.is_some() {

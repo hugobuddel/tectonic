@@ -295,6 +295,12 @@ ttstub_input_getc(rust_input_handle_t handle)
 }
 
 int
+ttstub_input_getchb(rust_input_handle_t handle)
+{
+    return input_getchb(TGB->context, handle);
+}
+
+int
 ttstub_input_ungetc(rust_input_handle_t handle, int ch)
 {
     return input_ungetc(TGB->context, handle, ch);

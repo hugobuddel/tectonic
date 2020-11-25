@@ -127,7 +127,7 @@ u_open_in(UFILE **f, int32_t filefmt, const char *fopen_mode, int32_t mode, int3
     if (mode == AUTO) {
         /* sniff encoding form */
         B1 = ttstub_input_getc ((*f)->handle);
-        B2 = ttstub_input_getc ((*f)->handle);
+        B2 = ttstub_input_getchb ((*f)->handle);
 
         if (B1 == 0xfe && B2 == 0xff)
             mode = UTF16BE;
